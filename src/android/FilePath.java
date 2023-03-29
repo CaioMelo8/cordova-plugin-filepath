@@ -100,7 +100,14 @@ public class FilePath extends CordovaPlugin {
         Log.d(TAG, "URI: " + this.uriStr);
 
         Context appContext = this.cordova.getActivity().getApplicationContext();
-        String filePath = getPath(appContext, pvUrl);
+
+        final boolean isAndroidQ = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q;
+
+        if (isAndroidQ) {
+            filePath = getDriveFilePath(pvUrl, appContext);
+        } else {
+            filePath = getPath(appContext, pvUrl);
+        }
 
         //check result; send error/success callback
         if (filePath == GET_PATH_ERROR_ID) {
@@ -338,10 +345,10 @@ public class FilePath extends CordovaPlugin {
                 ", Segments: " + uri.getPathSegments().toString()
         );
 
-        final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
+        final boolean isAndroidKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
 
         // DocumentProvider
-        if (isKitKat && DocumentsContract.isDocumentUri(context, uri)) {
+        if (isAndroidKitKat && DocumentsContract.isDocumentUri(context, uri)) {
             // ExternalStorageProvider
             if (isExternalStorageDocument(uri)) {
                 final String docId = DocumentsContract.getDocumentId(uri);
